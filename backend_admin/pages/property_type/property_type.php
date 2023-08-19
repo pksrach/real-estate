@@ -31,15 +31,6 @@
 
 								</select>
 							</div>
-							<div class="col-auto">
-								<a class="btn app-btn-secondary" href="#">
-									<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
-										<path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
-									</svg>
-									Download CSV
-								</a>
-							</div>
 						</div><!--//row-->
 					</div><!--//table-utilities-->
 				</div><!--//col-auto-->
@@ -64,13 +55,12 @@
 											<th class="cell">ឈ្មោះប្រភេទអចលនទ្រព្យជាខ្មែរ</th>
 											<th class="cell">ឈ្មោះប្រភេទអចលនទ្រព្យជាអង់គ្លេស</th>
 											<th class="cell">បរិយាយ</th>
-											<th class="cell">ស្ថានភាព</th>
-											<th class="cell"></th>
+											<th class="cell">សកម្មភាព</th>
 										</tr>
 									</thead>
 									<tbody>
 										<?php
-										$sql = "SELECT * FROM tbl_property_type";
+										$sql = "SELECT * FROM tbl_property_type order by property_type_id desc";
 										$result = mysqli_query($conn, $sql);
 										while ($row = mysqli_fetch_array($result)) {
 										?>
@@ -79,10 +69,52 @@
 												<td class="cell"><?= $row['property_type_kh'] ?></td>
 												<td class="cell"><?= $row['property_type_en'] ?></td>
 												<td class="cell"><?= $row['property_type_desc'] ?></td>
-												<td class="cell"><span class="badge bg-success">Paid</span></td>
-												<td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+												<td class="cell">
+													<a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
+													<a class="btn btn-primary" href="#" data-toggle="modal" data-bs-toggle="modal" data-bs-target="#editModal"><i class="far fa-edit"></i></a>
+													<button type="button" class="btn btn-danger"><i class="fas fa-eraser"></i></i></button>
+												</td>
 											</tr>
 										<?php
+											// Modal
+											echo '
+											<div class="modal fade bd-example-modal-lg" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+											  <div class="modal-dialog modal-lg" role="document">
+											  <div class="modal-content">
+												<div class="modal-header">
+												<h5 class="modal-title" id="exampleModalLabel">កែប្រប្រភេទអចលនទ្រព្យ</h5>
+												</div>
+												<div class="modal-body">
+												
+												<!-- Form -->
+												<div class="app-card-body">
+													<form method="post" class="settings-form" id="create_property_type-form" method="post" onsubmit="saveData(); return false;">
+														<div class="mb-3">
+															<label for="txt_property_type_kh" class="form-label">ឈ្មោះប្រភេទអចលនទ្រព្យជាខ្មែរ <span style="color: red;">*</span></label>
+															<input type="text" class="form-control" name="txt_property_type_kh" id="txt_property_type_kh" value="" required>
+														</div>
+														<div class="mb-3">
+															<label for="txt_property_type_en" class="form-label">ឈ្មោះប្រភេទអចលនទ្រព្យជាអង់គ្លេស <span style="color: red;">*</span></label>
+															<input type="text" class="form-control" name="txt_property_type_en" id="txt_property_type_en" value="" required>
+														</div>
+														<div class="mb-3">
+															<label for="tar_property_type_desc" class="form-label">បរិយាយ</label>
+															<textarea class="form-control" rows="3" name="tar_property_type_desc" id="tar_property_type_desc" style="height: 70px;"></textarea>
+														</div>
+
+														<button type="submit" name="btnUpdate" class="btn app-btn-primary">កែប្រែ</button>
+													</form>
+												</div><!--//app-card-body-->
+
+												</div>
+												<div class="modal-footer">
+												<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+												<button type="button" class="btn btn-primary">Save changes</button>
+												</div>
+											  </div>
+											  </div>
+											</div>
+											';
 										}
 										?>
 									</tbody>
@@ -108,6 +140,28 @@
 				</div><!--//tab-pane-->
 
 				<div class="tab-pane fade" id="create_property_type" role="tabpanel" aria-labelledby="create_property_type-tab">
+
+					<?php
+					if (isset($_POST['btnSave'])) {
+						$property_type_kh = $_REQUEST['txt_property_type_kh'];
+						$property_type_en = $_POST['txt_property_type_en'];
+						$property_type_desc = $_REQUEST['tar_property_type_desc'];
+
+						$sql = "
+						INSERT INTO tbl_property_type (property_type_kh, property_type_en, property_type_desc) 
+						VALUES ('$property_type_kh', '$property_type_en', '$property_type_desc');
+						";
+
+						if (mysqli_query($conn, $sql)) {
+							echo msgstyle('Data inserted success', 'success');
+						} else {
+							echo msgstyle('Error inserting' . "$sql", 'warning') . mysqli_error($conn);
+						}
+					}
+					// Close connection
+					mysqli_close($conn);
+					?>
+
 					<div class="app-card app-card-orders-table mb-5">
 						<div class="app-card-body">
 
@@ -116,12 +170,11 @@
 									<h1 class="app-page-title">បំពេញព័ត៌មានប្រភេទនៃអចលនទ្រព្យ</h1>
 									<hr class="mb-4">
 									<div class="row g-4 settings-section">
-
 										<div class="col-12 col-md-12">
 											<div class="app-card app-card-settings shadow-sm p-4">
-
 												<div class="app-card-body">
-													<form class="settings-form" id="create_property_type-form" method="post" onsubmit="saveData(); return false;">
+
+													<form method="post" action="<?php $_SERVER['PHP_SELF'] ?>" class="settings-form" id="create_property_type-form" method="post" onsubmit="saveData(); return false;">
 														<div class="mb-3">
 															<label for="txt_property_type_kh" class="form-label">ឈ្មោះប្រភេទអចលនទ្រព្យជាខ្មែរ <span style="color: red;">*</span></label>
 															<input type="text" class="form-control" name="txt_property_type_kh" id="txt_property_type_kh" value="" required>
@@ -131,15 +184,16 @@
 															<input type="text" class="form-control" name="txt_property_type_en" id="txt_property_type_en" value="" required>
 														</div>
 														<div class="mb-3">
-															<label for="tar_property_desc" class="form-label">បរិយាយ</label>
-															<textarea class="form-control" rows="3" name="tar_property_desc" id="tar_property_desc" style="height: 70px;"></textarea>
+															<label for="tar_property_type_desc" class="form-label">បរិយាយ</label>
+															<textarea class="form-control" rows="3" name="tar_property_type_desc" id="tar_property_type_desc" style="height: 70px;"></textarea>
 														</div>
 														<!-- <button type="submit" name="btnSave" class="btn app-btn-primary" onclick="saveData()">រក្សាទុក</button> -->
-														<input type="submit" name="btnSave" value="រក្សាទុក" class="btn app-btn-primary">
+														<button type="submit" name="btnSave" value="រក្សាទុក" class="btn app-btn-primary">Submit</button>
 													</form>
 
 													<!-- save data -->
-													<script src="assets/js/service/create_property_type.js"></script>
+													<!-- <script src="assets/js/service/create_property_type.js"></script> -->
+
 												</div><!--//app-card-body-->
 
 											</div><!--//app-card-->
@@ -225,48 +279,6 @@
 
 		</div><!--//container-fluid-->
 	</div><!--//app-content-->
-
-
-	<!-- Scipt js -->
-	<!-- <script>
-		document.getElementById("create_property_type-form").addEventListener("submit", function(event) {
-			event.preventDefault();
-
-			const proTypeKh = document.getElementById("txt_property_type_kh").value;
-			const proTypeEn = document.getElementById("txt_property_type_en").value;
-			const proTypeDesc = document.getElementById("tar_property_desc").value;
-
-			// Call a function to send the data to the PHP backend
-			saveDataToDB(name, email);
-		});
-
-		function saveDataToDB(proTypeKh, proTypeEn, proTypeDesc) {
-			const data = {
-				proTypeKh: proTypeKh,
-				proTypeEn: proTypeEn,
-				proTypeDesc: proTypeDesc
-			}
-		}
-
-		// Make an HTTP POST request to your PHP backend to save the data to the database
-		// Replace 'your_backend_url' with the actual URL of your PHP backend script
-		fetch('backend_admin/pages/property_type/property_type.php', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(data),
-			})
-			.then(response => response.json())
-			.then(data => {
-				// Handle the response from the backend if needed
-				console.log('Data saved successfully:', data);
-			})
-			.catch(error => {
-				// Handle any errors that occur during the API call
-				console.error('Error saving data:', error);
-			});
-	</script> -->
 
 	<!-- Copyright -->
 	<?php include_once 'pages/copyright.php'; ?>

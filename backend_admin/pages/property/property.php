@@ -61,42 +61,46 @@
 									<thead>
 										<tr>
 											<th class="cell">#</th>
-											<th class="cell">ឈ្មោះជាខ្មែរ</th>
-											<th class="cell">តម្លៃអចលនទ្រព្យ</th>
-											<th class="cell">បរិយាយ</th>
-											<th class="cell">រូបភាព</th>
-											<th class="cell">ស្ថានភាព</th>
-											<th class="cell"></th>
+											<th class="cell" style="text-align: center;">ឈ្មោះជាខ្មែរ</th>
+											<th class="cell" style="text-align: center;">តម្លៃអចលនទ្រព្យ</th>
+											<th class="cell" style="text-align: center;">បរិយាយ</th>
+											<th class="cell" style="text-align: center;">ប្រភេទ</th>
+											<th class="cell" style="text-align: center;">រូបភាព</th>
+											<th class="cell" style="text-align: center;">ស្ថានភាព</th>
 										</tr>
 									</thead>
 									<tbody>
 										<?php
+										include_once 'check_status.php';
+										$rowNumber = 1;
+
 										$sql = "
 											SELECT
 												p.property_id,
 												p.property_name,
 												p.property_price,
-												p.property_img,
 												p.property_desc,
-												pt.property_type_kh 
+												pt.property_type_kh,
+												p.property_img,
+												ps.property_status 
 											FROM
 												tbl_property p
 												INNER JOIN tbl_property_type pt ON p.property_type_id = pt.property_type_id 
+												INNER JOIN tbl_property_status ps on p.property_status_id = ps.property_status_id
 											ORDER BY
-												p.property_id DESC
-										";
+												p.property_id DESC; ";
 										$result = mysqli_query($conn, $sql);
 										while ($row = mysqli_fetch_array($result)) {
 										?>
 											<tr>
-												<td class="cell"><?= $row['property_id'] ?></td>
-												<td class="cell"><?= $row['property_name'] ?></td>
-												<td class="cell"><?= $row['property_price'] ?></td>
-												<td class="cell"><?= $row['property_desc'] ?></td>
-												<td class="cell"><?= $row['property_type_kh'] ?></td>
-												<td class="cell"><?= $row['property_img'] ?></td>
-												<td class="cell"><span class="badge bg-success">Paid</span></td>
-												<td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+												<td class="cell"><?= $rowNumber++ ?></td>
+												<td class="cell" style="text-align: center;"><?= $row['property_name'] ?></td>
+												<td class="cell" style="text-align: center;"><?= $row['property_price'] ?></td>
+												<td class="cell" style="text-align: center;"><?= $row['property_desc'] ?></td>
+												<td class="cell" style="text-align: center;"><?= $row['property_type_kh'] ?></td>
+												<td class="cell" style="text-align: center;"><img src="<?= $row['property_img'] ? $row['property_img'] : 'assets/images/Asset.png' ?>" width="50px" height="50px"></td>
+												<td class="cell" style="text-align: center;"><?= statusStyle($row['property_status']) ?></td>
+												<td class="cell" style="text-align: center;"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
 											</tr>
 										<?php
 										}
