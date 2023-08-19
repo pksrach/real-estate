@@ -42,6 +42,37 @@
 				<a class="flex-sm-fill text-sm-center nav-link" id="create_property_type-tab" data-bs-toggle="tab" href="#create_property_type" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតអចលនទ្រព្យថ្មី</a>
 			</nav>
 
+			<?php
+			# Update
+			if (isset($_POST['btnUpdate'])) {
+				$id = $_POST['u_id'];
+				$property_type_kh = $_POST['txt_property_type_kh'];
+				$property_type_en = $_POST['txt_property_type_en'];
+				$property_type_desc = $_POST['tar_property_type_desc'];
+
+				if (trim($property_type_kh) != '' && trim($property_type_en) != '') {
+					$sql = "UPDATE tbl_property_type SET property_type_kh = '$property_type_kh', property_type_en = '$property_type_en', property_type_desc = '$property_type_desc' WHERE property_type_id = $id";
+
+					if (mysqli_query($conn, $sql)) {
+						echo msgstyle('Data updated success', 'success');
+					} else {
+						echo msgstyle('Data updated unsuccess', 'info');
+					}
+				}
+			}
+
+			# Delete
+			if (isset($_GET['btnDelete'])) {
+				$id = $_GET['txtid'];
+				$sql = "DELETE FROM tbl_property_type WHERE property_type_id = $id";
+
+				if (mysqli_query($conn, $sql)) {
+					echo msgstyle('Data deleted success', 'success');
+				} else {
+					echo msgstyle('Data deleted unsuccess', 'info');
+				}
+			}
+			?>
 
 			<div class="tab-content" id="orders-table-tab-content">
 				<div class="tab-pane fade show active" id="property_type_list" role="tabpanel" aria-labelledby="property_type_list-tab">
@@ -64,21 +95,25 @@
 										$result = mysqli_query($conn, $sql);
 										while ($row = mysqli_fetch_array($result)) {
 										?>
-											<tr>
-												<td class="cell"><?= $row['property_type_id'] ?></td>
-												<td class="cell"><?= $row['property_type_kh'] ?></td>
-												<td class="cell"><?= $row['property_type_en'] ?></td>
-												<td class="cell"><?= $row['property_type_desc'] ?></td>
-												<td class="cell">
-													<a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
-													<a class="btn btn-primary" href="#" data-toggle="modal" data-bs-toggle="modal" data-bs-target="#editModal"><i class="far fa-edit"></i></a>
-													<button type="button" class="btn btn-danger"><i class="fas fa-eraser"></i></i></button>
-												</td>
-											</tr>
+											<form method="get">
+												<input type="hidden" name="pt" value="property_type" />
+												<input type="hidden" name="txtid" value="<?= $row['property_type_id'] ?>" />
+												<tr>
+													<td class="cell"><?= $row['property_type_id'] ?></td>
+													<td class="cell"><?= $row['property_type_kh'] ?></td>
+													<td class="cell"><?= $row['property_type_en'] ?></td>
+													<td class="cell"><?= $row['property_type_desc'] ?></td>
+													<td class="cell">
+														<a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
+														<a class="btn btn-primary" href="#" data-toggle="modal" data-bs-toggle="modal" data-bs-target="#editModal<?= $row['property_type_id'] ?>"><i class="far fa-edit"></i></a>
+														<button type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('Are you sure to delete ?')"><i class="fas fa-eraser"></i></i></button>
+													</td>
+												</tr>
+											</form>
 										<?php
 											// Modal
 											echo '
-											<div class="modal fade bd-example-modal-lg" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+											<div class="modal fade bd-example-modal-lg" id="editModal' . $row['property_type_id'] . '" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 											  <div class="modal-dialog modal-lg" role="document">
 											  <div class="modal-content">
 												<div class="modal-header">
@@ -89,17 +124,20 @@
 												<!-- Form -->
 												<div class="app-card-body">
 													<form method="post" class="settings-form" id="create_property_type-form" method="post" onsubmit="saveData(); return false;">
+
+														<input type = "hidden" name="u_id" value="' . $row['property_type_id'] . '" />
+
 														<div class="mb-3">
 															<label for="txt_property_type_kh" class="form-label">ឈ្មោះប្រភេទអចលនទ្រព្យជាខ្មែរ <span style="color: red;">*</span></label>
-															<input type="text" class="form-control" name="txt_property_type_kh" id="txt_property_type_kh" value="" required>
+															<input type="text" class="form-control" name="txt_property_type_kh" id="txt_property_type_kh" value="' . $row['property_type_kh'] . '" required>
 														</div>
 														<div class="mb-3">
 															<label for="txt_property_type_en" class="form-label">ឈ្មោះប្រភេទអចលនទ្រព្យជាអង់គ្លេស <span style="color: red;">*</span></label>
-															<input type="text" class="form-control" name="txt_property_type_en" id="txt_property_type_en" value="" required>
+															<input type="text" class="form-control" name="txt_property_type_en" id="txt_property_type_en" value="' . $row['property_type_en'] . '" required>
 														</div>
 														<div class="mb-3">
 															<label for="tar_property_type_desc" class="form-label">បរិយាយ</label>
-															<textarea class="form-control" rows="3" name="tar_property_type_desc" id="tar_property_type_desc" style="height: 70px;"></textarea>
+															<textarea class="form-control" rows="3" name="tar_property_type_desc" id="tar_property_type_desc" style="height: 70px;">' . $row['property_type_desc'] . '</textarea>
 														</div>
 
 														<button type="submit" name="btnUpdate" class="btn app-btn-primary">កែប្រែ</button>
@@ -107,10 +145,7 @@
 												</div><!--//app-card-body-->
 
 												</div>
-												<div class="modal-footer">
-												<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-												<button type="button" class="btn btn-primary">Save changes</button>
-												</div>
+												
 											  </div>
 											  </div>
 											</div>
