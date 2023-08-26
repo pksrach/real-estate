@@ -4,7 +4,7 @@ function statusStyle($status)
 {
     $style = '
         style="
-            width:60%;
+            width:50%;
             text-align:center;
         "
     ';
@@ -21,6 +21,9 @@ function statusStyle($status)
             break;
         case 'Blocked':
             echo '<span class="badge bg-danger" ' . $style . '>' . $status . '</span>';
+            break;
+        default:
+            echo '<span class="badge bg-secondary" ' . $style . '>N/A</span>';
             break;
     }
 }

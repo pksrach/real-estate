@@ -86,7 +86,7 @@
 											FROM
 												tbl_property p
 												INNER JOIN tbl_property_type pt ON p.property_type_id = pt.property_type_id 
-												INNER JOIN tbl_property_status ps on p.property_status_id = ps.property_status_id
+												LEFT JOIN tbl_property_status ps on p.property_status_id = ps.property_status_id
 											ORDER BY
 												p.property_id DESC; ";
 										$result = mysqli_query($conn, $sql);

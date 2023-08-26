@@ -22,6 +22,10 @@
     <!-- Battambong font embed -->
     <link id="theme-style" rel="stylesheet" href="assets/fonts/battambong_regular/battambong_font.css">
 
+    <!-- JQuery -->
+    <script defer src="assets/js/jquery-3.7.0.min.js"></script>
+    <script src="assets/js/jquery-3.7.0.min.js"></script>
+
 </head>
 
 <body class="app">
