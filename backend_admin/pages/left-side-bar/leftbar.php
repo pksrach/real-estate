@@ -37,32 +37,32 @@
                 </a><!--//nav-link-->
             </li><!--//nav-item-->
 
+
+
+
             <!-- Manage Property -->
             <li class="nav-item has-submenu">
-                <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
                 <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-11" aria-expanded="false" aria-controls="submenu-11">
                     <span class="nav-icon">
-                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-files" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M4 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4z" />
-                            <path d="M6 0h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1H4a2 2 0 0 1 2-2z" />
-                        </svg>
+                        <i class="fa-solid fa-building"></i>
                     </span>
                     <span class="nav-link-text">គ្រប់គ្រង អចលនទ្រព្យ</span>
                     <span class="submenu-arrow">
-                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
-                        </svg>
-                    </span><!--//submenu-arrow-->
-                </a><!--//nav-link-->
+                        <i class="fa-solid fa-sort-down"></i>
+                    </span>
+                </a>
                 <div id="submenu-11" class="collapse submenu submenu-11" data-bs-parent="#menu-accordion">
                     <ul class="submenu-list list-unstyled">
                         <li class="submenu-item"><a class="submenu-link" href="index.php?pt=property_type">ប្រភេទ អចលនទ្រព្យ</a></li>
+                        <li class="submenu-item"><a class="submenu-link" href="index.php?p=insert_property">បង្កើត ព័ត៌មានអចលនទ្រព្យ</a></li>
                         <li class="submenu-item"><a class="submenu-link" href="index.php?p=property">ព័ត៌មាន អចលនទ្រព្យ</a></li>
                     </ul>
                 </div>
-            </li><!--//nav-item-->
+            </li>
             <!-- End of manage property -->
+
+
+
 
             <!-- External -->
             <li class="nav-item has-submenu">
@@ -89,12 +89,11 @@
                         <li class="submenu-item"><a class="submenu-link" href="404.html">404 page</a></li>
                     </ul>
                 </div>
-            </li><!--//nav-item-->
+            </li>
             <!-- End of External -->
 
             <!-- Charts -->
             <li class="nav-item">
-                <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
                 <a class="nav-link" href="charts.html">
                     <span class="nav-icon">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-bar-chart-line" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -102,8 +101,9 @@
                         </svg>
                     </span>
                     <span class="nav-link-text">Charts</span>
-                </a><!--//nav-link-->
-            </li><!--//nav-item-->
+                </a>
+            </li>
+            <!-- End of Charts -->
 
             <li class="nav-item">
                 <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->

@@ -31,15 +31,6 @@
 
 								</select>
 							</div>
-							<div class="col-auto">
-								<a class="btn app-btn-secondary" href="#">
-									<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
-										<path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
-									</svg>
-									Download CSV
-								</a>
-							</div>
 						</div><!--//row-->
 					</div><!--//table-utilities-->
 				</div><!--//col-auto-->
@@ -47,13 +38,13 @@
 
 
 			<nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
-				<a class="flex-sm-fill text-sm-center nav-link active" id="property_type_list-tab" data-bs-toggle="tab" href="#property_type_list" role="tab" aria-controls="orders-all" aria-selected="true">បញ្ជីប្រភេទអចលនទ្រព្យ</a>
-				<a class="flex-sm-fill text-sm-center nav-link" id="create_property_type-tab" data-bs-toggle="tab" href="#create_property_type" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតអចលនទ្រព្យថ្មី</a>
+				<a class="flex-sm-fill text-sm-center nav-link active" id="property_list-tab" data-bs-toggle="tab" href="#property_list" role="tab" aria-controls="orders-all" aria-selected="true">បញ្ជីប្រភេទអចលនទ្រព្យ</a>
+				<a class="flex-sm-fill text-sm-center nav-link" id="create_property-tab" data-bs-toggle="tab" href="#create_property" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតអចលនទ្រព្យថ្មី</a>
 			</nav>
 
 
 			<div class="tab-content" id="orders-table-tab-content">
-				<div class="tab-pane fade show active" id="property_type_list" role="tabpanel" aria-labelledby="property_type_list-tab">
+				<div class="tab-pane fade show active" id="property_list" role="tabpanel" aria-labelledby="property_list-tab">
 					<div class="app-card app-card-orders-table shadow-sm mb-5">
 						<div class="app-card-body">
 							<div class="table-responsive">
@@ -61,11 +52,11 @@
 									<thead>
 										<tr>
 											<th class="cell">#</th>
+											<th class="cell" style="text-align: center;">រូបភាព</th>
 											<th class="cell" style="text-align: center;">ឈ្មោះជាខ្មែរ</th>
 											<th class="cell" style="text-align: center;">តម្លៃអចលនទ្រព្យ</th>
 											<th class="cell" style="text-align: center;">បរិយាយ</th>
 											<th class="cell" style="text-align: center;">ប្រភេទ</th>
-											<th class="cell" style="text-align: center;">រូបភាព</th>
 											<th class="cell" style="text-align: center;">ស្ថានភាព</th>
 										</tr>
 									</thead>
@@ -77,11 +68,11 @@
 										$sql = "
 											SELECT
 												p.property_id,
+												p.property_img,
 												p.property_name,
 												p.property_price,
 												p.property_desc,
 												pt.property_type_kh,
-												p.property_img,
 												ps.property_status 
 											FROM
 												tbl_property p
@@ -94,11 +85,11 @@
 										?>
 											<tr>
 												<td class="cell"><?= $rowNumber++ ?></td>
+												<td class="cell" style="text-align: center;"><img src="<?= $row['property_img'] ? $row['property_img'] : 'assets/images/Asset.png' ?>" width="50px" height="50px"></td>
 												<td class="cell" style="text-align: center;"><?= $row['property_name'] ?></td>
 												<td class="cell" style="text-align: center;"><?= $row['property_price'] ?></td>
 												<td class="cell" style="text-align: center;"><?= $row['property_desc'] ?></td>
 												<td class="cell" style="text-align: center;"><?= $row['property_type_kh'] ?></td>
-												<td class="cell" style="text-align: center;"><img src="<?= $row['property_img'] ? $row['property_img'] : 'assets/images/Asset.png' ?>" width="50px" height="50px"></td>
 												<td class="cell" style="text-align: center;"><?= statusStyle($row['property_status']) ?></td>
 												<td class="cell" style="text-align: center;"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
 											</tr>
@@ -127,12 +118,11 @@
 
 				</div><!--//tab-pane-->
 
-				<div class="tab-pane fade" id="create_property_type" role="tabpanel" aria-labelledby="create_property_type-tab">
+				<div class="tab-pane fade" id="create_property" role="tabpanel" aria-labelledby="create_property-tab">
 					<div class="app-card app-card-orders-table mb-5">
 						<div class="app-card-body">
 
-
-
+							<!-- Form create property -->
 							<div class="app-content pt-3 p-md-3 p-lg-4">
 								<div class="container-xl">
 									<h1 class="app-page-title">បំពេញព័ត៌មានប្រភេទនៃអចលនទ្រព្យ</h1>
@@ -167,7 +157,9 @@
 
 								</div><!--//container-fluid-->
 							</div><!--//app-content-->
+							<!-- End of Form for create property -->
 
+							
 
 						</div><!--//app-card-body-->
 					</div><!--//app-card-->
@@ -250,3 +242,11 @@
 	<?php include_once 'pages/copyright.php'; ?>
 
 </div><!--//app-wrapper-->
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#property_list-tab', '#create_property').click(function() {
+			window.location.href = "index.php?p=property";
+		})
+	})
+</script>

@@ -322,7 +322,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('#property_type_list-tab').click(function() {
+		$('#property_type_list-tab', '#create_property_type').click(function() {
 			window.location.href = "index.php?pt=property_type";
 		})
 	})
