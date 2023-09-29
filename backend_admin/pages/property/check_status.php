@@ -4,7 +4,6 @@ function statusStyle($status)
 {
     $style = '
         style="
-            width:50%;
             text-align:center;
         "
     ';

@@ -85,13 +85,18 @@
 										?>
 											<tr>
 												<td class="cell"><?= $rowNumber++ ?></td>
-												<td class="cell" style="text-align: center;"><img src="<?= $row['property_img'] ? $row['property_img'] : 'assets/images/Asset.png' ?>" width="50px" height="50px"></td>
+												<td class="cell" style="text-align: center;"><img src="<?= $row['property_img'] ? "assets/images/img_data_store_upload/" . $row['property_img'] : 'assets/images/Asset.png' ?>" width="50px" height="50px"></td>
 												<td class="cell" style="text-align: center;"><?= $row['property_name'] ?></td>
 												<td class="cell" style="text-align: center;"><?= $row['property_price'] ?></td>
 												<td class="cell" style="text-align: center;"><?= $row['property_desc'] ?></td>
 												<td class="cell" style="text-align: center;"><?= $row['property_type_kh'] ?></td>
 												<td class="cell" style="text-align: center;"><?= statusStyle($row['property_status']) ?></td>
-												<td class="cell" style="text-align: center;"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+
+												<td class="cell">
+													<a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
+													<a class="btn btn-primary" href="index.php?p=update_property&proid=<?= $row['property_id'] ?>"><i class="far fa-edit"></i></a>
+													<button type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('Are you sure to delete ?')"><i class="fas fa-eraser"></i></i></button>
+												</td>
 											</tr>
 										<?php
 										}
@@ -159,7 +164,7 @@
 							</div><!--//app-content-->
 							<!-- End of Form for create property -->
 
-							
+
 
 						</div><!--//app-card-body-->
 					</div><!--//app-card-->
