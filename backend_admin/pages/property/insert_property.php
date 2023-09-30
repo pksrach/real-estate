@@ -15,92 +15,99 @@
 			<nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
 				<a class="flex-sm-fill text-sm-center nav-link" id="create_property-tab" data-bs-toggle="tab" href="#create_property" role="tab" aria-controls="create_property" aria-selected="false">បង្កើតអចលនទ្រព្យថ្មី</a>
 			</nav>
-			<div class="tab-content" id="orders-table-tab-content">
-				<div class="tab-pane fade show active" id="create_property" role="tabpanel" aria-labelledby="create_property-tab">
-					<!-- Insert -->
-					<?php
-					// Message
-					$property_nm_msg = '<div class="validation_msg">សូមបញ្ចូលឈ្មោះអចលនទ្រព្យ</div>';
-					$property_price_msg = '<div class="validation_msg">សូមបញ្ចូលតម្លៃអចលនទ្រព្យ</div>';
-					$property_img_msg = '<div class="validation_msg">សូមជ្រើសរើសរូបភាពអចលនទ្រព្យ</div>';
-					$msg1 = $msg2 = $msg3 = '';
 
-					// Default fields values
-					$property_type_id = "";
-					$property_name = "";
-					$property_price = "";
-					$property_status_id = "";
-					$property_desc = "";
+			<!-- Insert -->
+			<?php
+			// Message
+			$property_nm_msg = '<div class="validation_msg">សូមបញ្ចូលឈ្មោះអចលនទ្រព្យ</div>';
+			$property_price_msg = '<div class="validation_msg">សូមបញ្ចូលតម្លៃអចលនទ្រព្យ</div>';
+			$property_img_msg = '<div class="validation_msg">សូមជ្រើសរើសរូបភាពអចលនទ្រព្យ</div>';
+			$msg1 = $msg2 = $msg3 = '';
 
-					if (isset($_POST['btnSave'])) {
-						// Fields
-						$property_type_id = $_POST['sel_property_type'];
-						$property_name = $_POST['txt_property_name'];
-						$property_price = $_POST['txt_property_price'];
-						$property_status_id = $_POST['sel_property_status'];
-						$property_desc = $_POST['tar_desc'];
+			// Default fields values
+			$property_type_id = "";
+			$property_name = "";
+			$property_price = "";
+			$property_status_id = "";
+			$property_desc = "";
 
-						// Files
-						$filename = $_FILES['img_property']['name'];
-						$file_size = $_FILES['img_property']['size'];
-						$filetmp = $_FILES['img_property']['tmp_name'];
-						$filetype = $_FILES['img_property']['type'];
+			if (isset($_POST['btnSave'])) {
+				// Fields
+				$property_type_id = $_POST['sel_property_type'];
+				$property_name = $_POST['txt_property_name'];
+				$property_price = $_POST['txt_property_price'];
+				$property_status_id = $_POST['sel_property_status'];
+				$property_desc = $_POST['tar_desc'];
 
-						$filename_bstr = explode(".", $filename);
-						$file_ext = strtolower(end($filename_bstr));
-						$extensions = array("jpeg", "jpg", "png");
+				// Files
+				$filename = $_FILES['img_property']['name'];
+				$file_size = $_FILES['img_property']['size'];
+				$filetmp = $_FILES['img_property']['tmp_name'];
+				$filetype = $_FILES['img_property']['type'];
 
-						if (trim($property_name) == '') {
-							$msg1 = $property_nm_msg;
-						}
-						if (trim($property_price) == '') {
-							$msg2 = $property_price_msg;
-						}
-						if ($filename == '') {
-							$msg3 = $property_img_msg;
+				$filename_bstr = explode(".", $filename);
+				$file_ext = strtolower(end($filename_bstr));
+				$extensions = array("jpeg", "jpg", "png");
+
+				if (trim($property_name) == '') {
+					$msg1 = $property_nm_msg;
+				}
+				if (trim($property_price) == '') {
+					$msg2 = $property_price_msg;
+				}
+				if ($filename == '') {
+					$msg3 = $property_img_msg;
+				} else {
+					// 2MB = 2097152
+					if ($file_size > 2097152) {
+						echo msgstyle("ទំហំ File ត្រូវតែតូចជាង 2MB", "info");
+					} else {
+						if (in_array($file_ext, $extensions) === false) {
+							echo msgstyle("extension not allowed, please choose a JPEG or PNG file.", "info");
 						} else {
-							//2mb
-							$maxsize = 2 * 1024 * 1024;
-							if ($file_size > $maxsize) {
-								echo msgstyle("ទំហំ File ត្រូវតែតូចជាង 2MB", "info");
-							} else {
-								if (in_array($file_ext, $extensions) === false) {
-									echo msgstyle("extension not allowed, please choose a JPEG or PNG file.", "info");
+							$path_to_store_img = "assets/images/img_data_store_upload/" . $filename;
+							move_uploaded_file($filetmp, $path_to_store_img);
+							if (
+								trim($property_type_id) != '' &&
+								trim($property_name) != '' &&
+								trim($property_price) != '' &&
+								trim($property_status_id) != '' &&
+								trim($filename) != ''
+							) {
+								// Query insert
+								$sql = '
+									INSERT INTO tbl_property(property_type_id,property_name,property_price,property_status_id,property_img,property_desc)
+									VALUES(?,?,?,?,?,?)
+								';
+
+								$stmt = $conn->prepare($sql);
+								$stmt->bind_param("ississ", $property_type_id, $property_name, $property_price, $property_status_id, $filename, $property_desc);
+								if ($stmt->execute()) {
+									echo msgstyle("បង្កើតព័ត៌មានអចលនទ្រព្យថ្មីបានជោគជ័យ", "success");
 								} else {
-									if (
-										trim($property_type_id) != '' &&
-										trim($property_name) != '' &&
-										trim($property_price) != '' &&
-										trim($property_status_id) != '' &&
-										trim($filename) != ''
-									) {
-										$newfilename = md5(time() . $filename) . '.' . $file_ext;
-										move_uploaded_file($filetmp, "assets/images/img_data_store_upload/" . $newfilename);
-
-										// Query update
-
-
-										$stmt = $conn->prepare($sql);
-										$stmt->bind_param("ississ", $property_type_id, $property_name, $property_price, $property_status_id, $newfilename, $property_desc);
-										if ($stmt->execute()) {
-											echo msgstyle("បង្កើតព័ត៌មានអចលនទ្រព្យថ្មីបានជោគជ័យ", "success");
-										} else {
-											echo msgstyle("បង្កើតព័ត៌មានអចលនទ្រព្យថ្មីមិនបានជោគជ័យ", "danger");
-										}
-									}
+									echo msgstyle("បង្កើតព័ត៌មានអចលនទ្រព្យថ្មីមិនបានជោគជ័យ", "danger");
 								}
 							}
 						}
-
-						if (trim($property_name) == "") {
-							$msg1 = $property_nm_msg;
-						}
-						if (trim($property_price) == "") {
-							$msg2 = $property_price_msg;
-						}
 					}
-					?>
-					<!-- End of Insert -->
+				}
+				echo '<script type="text/javascript"> 
+						window.location.replace("index.php?p=property&msg=200");
+					 </script>
+				';
+
+				// if (trim($property_name) == "") {
+				// 	$msg1 = $property_nm_msg;
+				// }
+				// if (trim($property_price) == "") {
+				// 	$msg2 = $property_price_msg;
+				// }
+			}
+			?>
+			<!-- End of Insert -->
+
+			<div class="tab-content" id="orders-table-tab-content">
+				<div class="tab-pane fade show active" id="create_property" role="tabpanel" aria-labelledby="create_property-tab">
 
 
 					<div class="app-card app-card-orders-table mb-5">

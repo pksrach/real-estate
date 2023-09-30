@@ -40,7 +40,7 @@ $p_desc = $row['property_desc'];
 
 	<div class="app-content pt-3 p-md-3 p-lg-4">
 		<div class="container-xl">
-			<h1 class="app-page-title">កែប្រែ ព័ត៌មាននៃអចលនទ្រព្យថ្មី</h1>
+			<h1 class="app-page-title">កែប្រែ ព័ត៌មាននៃអចលនទ្រព្យ</h1>
 			<hr class="mb-4">
 
 			<!-- Tap Click -->
@@ -49,7 +49,6 @@ $p_desc = $row['property_desc'];
 			</nav>
 			<div class="tab-content" id="orders-table-tab-content">
 				<div class="tab-pane fade show active" id="create_property" role="tabpanel" aria-labelledby="create_property-tab">
-					<!-- Insert -->
 					<?php
 					$property_nm_msg = '<div class="validation_msg">សូមបញ្ចូលឈ្មោះអចលនទ្រព្យ</div>';
 					$property_price_msg = '<div class="validation_msg">សូមបញ្ចូលតម្លៃអចលនទ្រព្យ</div>';
@@ -74,7 +73,27 @@ $p_desc = $row['property_desc'];
 						$file_ext = strtolower(end($filename_bstr));
 						$extensions = array("jpeg", "jpg", "png");
 						if ($filename == "") {
-							$msg3 = $property_img_msg;
+							$sql = "
+								UPDATE tbl_property SET
+									property_type_id = $property_type_id,
+									property_name = '$property_name',
+									property_price = $property_price,
+									property_img = '$p_oimage',
+									property_status_id = $property_status_id,
+									property_desc = '$property_desc'
+								WHERE
+									property_id = $id
+							";
+							$result = $conn->query($sql);
+							if ($result) {
+								// Load page jol table
+								echo '<script type="text/javascript"> 
+									window.location.replace("index.php?p=property&msg=200");
+									</script>
+								';
+							} else {
+								echo msgstyle("កែប្រែព័ត៌មានបរាជ័យ", "danger");
+							}
 						} else {
 							//2mb
 							$maxsize = 2 * 1024 * 1024;
@@ -84,50 +103,86 @@ $p_desc = $row['property_desc'];
 								if (in_array($file_ext, $extensions) === false) {
 									echo msgstyle("extension not allowed, please choose a JPEG or PNG file.", "info");
 								} else {
-									if (
-										trim($property_type_id) != '' &&
-										trim($property_name) != '' &&
-										trim($property_price) != '' &&
-										trim($property_status_id) != '' &&
-										trim($filename) != ''
-									) {
-										$newfilename = md5(time() . $filename) . '.' . $file_ext;
-										move_uploaded_file($filetmp, "assets/images/img_data_store_upload/" . $newfilename);
-
-										// Query insert
-										$sql = '
-											INSERT INTO tbl_property(property_type_id,property_name,property_price,property_status_id,property_img,property_desc)
-											VALUES(?,?,?,?,?,?)
-										';
-
-										$stmt = $conn->prepare($sql);
-										$stmt->bind_param("ississ", $property_type_id, $property_name, $property_price, $property_status_id, $newfilename, $property_desc);
-										if ($stmt->execute()) {
-											echo msgstyle("បង្កើតព័ត៌មានអចលនទ្រព្យថ្មីបានជោគជ័យ", "success");
+									$path_img_store_local = "assets/images/img_data_store_upload/" . $filename;
+									$path_img_in_db = "assets/images/img_data_store_upload/" . $p_oimage;
+									echo "<script>console.log(`Path stroe img: $path_img_store_local`)</script>";
+									if (file_exists($path_img_store_local) && !file_exists($path_img_in_db)) {
+										echo msgstyle("រូបភាព " . $filename . " មានរួចហើយ", "info");
+										// Update
+										$sql = "
+											UPDATE tbl_property SET
+												property_type_id = $pt_id,
+												property_name = '$p_name',
+												property_price = $p_price,
+												property_img = '$filename',
+												property_status_id = $ps_id,
+												property_desc = '$p_desc'
+											WHERE
+												property_id = $id
+										";
+										echo $sql;
+										$result = $conn->query($sql);
+										if ($result) {
+											// Load page jol table
+											echo '<script type="text/javascript"> 
+													window.location.replace("index.php?p=property&msg=200");
+												</script>
+											';
 										} else {
-											echo msgstyle("បង្កើតព័ត៌មានអចលនទ្រព្យថ្មីមិនបានជោគជ័យ", "danger");
+											echo msgstyle("កែប្រែព័ត៌មានបរាជ័យ", "danger");
+										}
+									} else {
+										// ករណី filename mean nv db hz 
+										if (file_exists($path_img_in_db)) {
+											unlink($path_img_in_db);
+
+											if (
+												trim($property_type_id) != '' &&
+												trim($property_name) != '' &&
+												trim($property_price) != '' &&
+												trim($property_status_id) != '' &&
+												trim($filename) != ''
+											) {
+												// Update
+												move_uploaded_file($filetmp, $path_img_store_local);
+												$sql = "
+													UPDATE tbl_property SET
+														property_type_id = $pt_id,
+														property_name = '$p_name',
+														property_price = $p_price,
+														property_img = '$filename',
+														property_status_id = $ps_id,
+														property_desc = '$p_desc'
+													WHERE
+														property_id = $id
+												";
+												echo $sql;
+												$result = $conn->query($sql);
+												if ($result) {
+													// Load page jol table
+													echo '<script type="text/javascript"> 
+															window.location.replace("index.php?p=property&msg=200");
+														</script>
+													';
+												} else {
+													echo msgstyle("កែប្រែព័ត៌មានបរាជ័យ", "danger");
+												}
+											}
 										}
 									}
 								}
 							}
 						}
-
-						if (trim($property_name) == "") {
-							$msg1 = $property_nm_msg;
-						}
-						if (trim($property_price) == "") {
-							$msg2 = $property_price_msg;
-						}
 					}
 					?>
-					<!-- End of Insert -->
+					<!-- End of Update -->
 
 
 					<div class="app-card app-card-orders-table mb-5">
 						<div class="app-card-body">
 
 
-							<!-- Form create property -->
+							<!-- Form update property -->
 							<div class="app-content pt-3 p-md-3 p-lg-4">
 								<div class="container-xl">
 									<div class="row g-4 settings-section">
@@ -283,15 +338,3 @@ $p_desc = $row['property_desc'];
 	<?php include_once 'pages/copyright.php'; ?>
 
 </div><!--//app-wrapper-->
-
-
-
-<!-- Script -->
-<script type="text/javascript">
-	$(document).ready(function() {
-		$("#btnSave").click(function() {
-			//alert('testing');
-			window.location.href = "index.php?p=property";
-		});
-	});
-</script>

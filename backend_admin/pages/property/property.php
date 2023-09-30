@@ -42,6 +42,19 @@
 				<a class="flex-sm-fill text-sm-center nav-link" id="create_property-tab" data-bs-toggle="tab" href="#create_property" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតអចលនទ្រព្យថ្មី</a>
 			</nav>
 
+			<!-- Msg -->
+			<?php
+			if (isset($_GET['msg'])) {
+				#delete= 200, #updated, created =200
+				if ($_GET['msg'] == 202) {
+					echo msgstyle('ការលុបបានជោគជ័យ!', 'danger');
+				} elseif ($_GET['msg'] == 200) {
+					echo msgstyle("កែប្រែព័ត៌មានបានជោគជ័យ", "success");
+				} else {
+					echo msgstyle("Error message", 'danger');
+				}
+			}
+			?>
 
 			<div class="tab-content" id="orders-table-tab-content">
 				<div class="tab-pane fade show active" id="property_list" role="tabpanel" aria-labelledby="property_list-tab">
@@ -95,7 +108,7 @@
 												<td class="cell">
 													<a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
 													<a class="btn btn-primary" href="index.php?p=update_property&proid=<?= $row['property_id'] ?>"><i class="far fa-edit"></i></a>
-													<button type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('Are you sure to delete ?')"><i class="fas fa-eraser"></i></i></button>
+													<a href="pages/property/del_property.php?id=<?= $row['property_id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('Are you sure to delete ?')"><i class="fas fa-eraser"></i></i></a>
 												</td>
 											</tr>
 										<?php
@@ -161,7 +174,7 @@
 									<!-- <hr class="my-4"> -->
 
 								</div><!--//container-fluid-->
-							</div><!--//app-content-->
+							</div>
 							<!-- End of Form for create property -->
 
 
