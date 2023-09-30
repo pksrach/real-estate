@@ -219,7 +219,7 @@ $p_desc = $row['property_desc'];
 														</div>
 
 														<div class="mb-3">
-															<label class="form-label">រូបភាពអចលនទ្រព្យ<span style="color: red;">*</span></label>
+															<label class="form-label">រូបភាពអចលនទ្រព្យ</label>
 															<input type="file" class="form-control" name="img_property" id="img_property" value="<?= $p_oimage ?>">
 														</div>
 

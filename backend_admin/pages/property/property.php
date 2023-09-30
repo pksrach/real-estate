@@ -11,26 +11,41 @@
 					<div class="page-utilities">
 						<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
 							<div class="col-auto">
-								<form class="table-search-form row gx-1 align-items-center">
+								<form method="get" class="table-search-form row gx-1 align-items-center">
+									<input type="hidden" name="p" value="property" />
 									<div class="col-auto">
-										<input type="text" id="search-orders" name="searchorders" class="form-control search-orders" placeholder="Search">
+										<select class="form-select w-auto" name='key_property_type' id='sel_property_type'>
+											<option value="">---ជ្រើសរើសប្រភេទ---</option>
+											<?php
+											$sql = mysqli_query($conn, "SELECT * FROM tbl_property_type");
+											while ($row = mysqli_fetch_assoc($sql)) {
+												echo "<option value='" . $row['property_type_id'] . "'>" . $row['property_type_kh'] . "</option>";
+											}
+											?>
+										</select>
 									</div>
 									<div class="col-auto">
-										<button type="submit" class="btn app-btn-secondary">Search</button>
+										<select class="form-select w-auto" name="key_property_status" id="sel_property_status">
+											<option value="">---ជ្រើសរើសស្ថានភាព---</option>
+											<?php
+											$sql = mysqli_query($conn, "SELECT * FROM tbl_property_status");
+											while ($row = mysqli_fetch_assoc($sql)) {
+												echo "<option value='" . $row['property_status_id'] . "'>" . $row['property_status'] . "</option>";
+											}
+											?>
+										</select>
+									</div>
+
+									<div class="col-auto">
+										<input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="Search">
+									</div>
+									<div class="col-auto">
+										<button type="submit" name="btnSearch" class="btn app-btn-secondary">Search</button>
 									</div>
 								</form>
 
 							</div><!--//col-->
-							<div class="col-auto">
 
-								<select class="form-select w-auto">
-									<option selected value="option-1">All</option>
-									<option value="option-2">This week</option>
-									<option value="option-3">This month</option>
-									<option value="option-4">Last 3 months</option>
-
-								</select>
-							</div>
 						</div><!--//row-->
 					</div><!--//table-utilities-->
 				</div><!--//col-auto-->
@@ -66,7 +81,7 @@
 										<tr>
 											<th class="cell">#</th>
 											<th class="cell" style="text-align: center;">រូបភាព</th>
-											<th class="cell" style="text-align: center;">ឈ្មោះជាខ្មែរ</th>
+											<th class="cell" style="text-align: center;">ឈ្មោះអចលនទ្រព្យ</th>
 											<th class="cell" style="text-align: center;">តម្លៃអចលនទ្រព្យ</th>
 											<th class="cell" style="text-align: center;">បរិយាយ</th>
 											<th class="cell" style="text-align: center;">ប្រភេទ</th>
@@ -78,40 +93,149 @@
 										include_once 'check_status.php';
 										$rowNumber = 1;
 
-										$sql = "
-											SELECT
-												p.property_id,
-												p.property_img,
-												p.property_name,
-												p.property_price,
-												p.property_desc,
-												pt.property_type_kh,
-												ps.property_status 
-											FROM
-												tbl_property p
-												INNER JOIN tbl_property_type pt ON p.property_type_id = pt.property_type_id 
-												LEFT JOIN tbl_property_status ps on p.property_status_id = ps.property_status_id
-											ORDER BY
-												p.property_id DESC; ";
-										$result = mysqli_query($conn, $sql);
-										while ($row = mysqli_fetch_array($result)) {
-										?>
-											<tr>
-												<td class="cell"><?= $rowNumber++ ?></td>
-												<td class="cell" style="text-align: center;"><img src="<?= $row['property_img'] ? "assets/images/img_data_store_upload/" . $row['property_img'] : 'assets/images/Asset.png' ?>" width="50px" height="50px"></td>
-												<td class="cell" style="text-align: center;"><?= $row['property_name'] ?></td>
-												<td class="cell" style="text-align: center;"><?= $row['property_price'] ?></td>
-												<td class="cell" style="text-align: center;"><?= $row['property_desc'] ?></td>
-												<td class="cell" style="text-align: center;"><?= $row['property_type_kh'] ?></td>
-												<td class="cell" style="text-align: center;"><?= statusStyle($row['property_status']) ?></td>
+										// searching data
+										if (isset($_GET['btnSearch'])) {
+											$keypropertytype = $_GET['key_property_type'];
+											$keypropertystatus = $_GET['key_property_status'];
+											$keyinputdata = $_GET['keyinputdata'];
 
-												<td class="cell">
-													<a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
-													<a class="btn btn-primary" href="index.php?p=update_property&proid=<?= $row['property_id'] ?>"><i class="far fa-edit"></i></a>
-													<a href="pages/property/del_property.php?id=<?= $row['property_id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('Are you sure to delete ?')"><i class="fas fa-eraser"></i></i></a>
-												</td>
-											</tr>
+											// Pagination when searching
+											$number_of_page = 0;
+											$s = "SELECT count(*) 
+												FROM
+												  tbl_property p
+												  INNER JOIN tbl_property_type pt ON pt.property_type_id = p.property_type_id
+												  LEFT JOIN tbl_property_status ps ON ps.property_status_id = p.property_status_id
+												";
+											$q = $conn->query($s);
+											$r = mysqli_fetch_row($q);
+											$row_per_page = 5;
+											$number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
+											if (!isset($_GET['pn'])) {
+												$current_page = 0;
+											} else {
+												$current_page = $_GET['pn'];
+												$current_page = ($current_page - 1) * $row_per_page;
+											}
+											// End pagination
+
+											$sql_select = "
+												SELECT
+													p.property_id,
+													p.property_img,
+													p.property_name,
+													p.property_price,
+													p.property_desc,
+													pt.property_type_kh,
+													ps.property_status 
+												FROM
+													tbl_property p
+													INNER JOIN tbl_property_type pt ON p.property_type_id = pt.property_type_id 
+													LEFT JOIN tbl_property_status ps on p.property_status_id = ps.property_status_id
+												";
+											if ($keypropertytype == "" && $keypropertystatus == "" && $keyinputdata == "") {
+												$sql = $sql_select . "LIMIT $current_page, $row_per_page;";
+											}
+
+											if ($keypropertytype) {
+												$sql = $sql_select . "
+												WHERE
+													p.property_type_id = '$keypropertytype'
+												ORDER BY
+													p.property_id DESC LIMIT $current_page, $row_per_page;";
+											}
+
+											if ($keypropertystatus) {
+												$sql = $sql_select . "
+												WHERE
+													ps.property_status_id = '$keypropertystatus'
+												ORDER BY
+													p.property_id DESC LIMIT $current_page, $row_per_page;";
+											}
+
+											if ($keyinputdata) {
+												$sql = $sql_select . "
+												WHERE
+													p.property_name LIKE '%" . $keyinputdata . "%'
+												ORDER BY
+													p.property_id DESC LIMIT $current_page, $row_per_page;";
+											}
+
+											$result = mysqli_query($conn, $sql);
+											$num_row = $result->num_rows;
+										} else {
+											// Load all data
+
+											// Pagination
+											#pagination when first load
+											$number_of_page = 0;
+											$s = "SELECT count(*) 
+												FROM
+												  tbl_property p
+												  INNER JOIN tbl_property_type pt ON pt.property_type_id = p.property_type_id
+												  LEFT JOIN tbl_property_status ps ON ps.property_status_id = p.property_status_id
+												";
+											$q = $conn->query($s);
+											$r = mysqli_fetch_row($q);
+											$row_per_page = 5;
+											$number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
+											if (!isset($_GET['pn'])) {
+												$current_page = 0;
+											} else {
+												$current_page = $_GET['pn'];
+												$current_page = ($current_page - 1) * $row_per_page;
+											}
+											// End pagination
+
+											$sql = "
+												SELECT
+													p.property_id,
+													p.property_img,
+													p.property_name,
+													p.property_price,
+													p.property_desc,
+													pt.property_type_kh,
+													ps.property_status 
+												FROM
+													tbl_property p
+													INNER JOIN tbl_property_type pt ON p.property_type_id = pt.property_type_id 
+													LEFT JOIN tbl_property_status ps on p.property_status_id = ps.property_status_id
+												ORDER BY
+													p.property_id DESC
+												LIMIT $current_page, $row_per_page;
+											";
+											$result = mysqli_query($conn, $sql);
+											$num_row = $result->num_rows;
+										}
+
+										if ($result->num_rows > 0) {
+											$i = 1;
+											while ($row = mysqli_fetch_array($result)) {
+										?>
+												<tr>
+													<td class="cell"><?= $rowNumber++ ?></td>
+													<td class="cell" style="text-align: center;"><img src="<?= $row['property_img'] ? "assets/images/img_data_store_upload/" . $row['property_img'] : 'assets/images/Asset.png' ?>" width="50px" height="50px"></td>
+													<td class="cell" style="text-align: center;"><?= $row['property_name'] ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['property_price'] ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['property_desc'] ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['property_type_kh'] ?></td>
+													<td class="cell" style="text-align: center;"><?= statusStyle($row['property_status']) ?></td>
+
+													<td class="cell">
+														<a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
+														<a class="btn btn-primary" href="index.php?p=update_property&proid=<?= $row['property_id'] ?>"><i class="far fa-edit"></i></a>
+														<a href="pages/property/del_property.php?id=<?= $row['property_id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('Are you sure to delete ?')"><i class="fas fa-eraser"></i></i></a>
+													</td>
+												</tr>
 										<?php
+												$i++;
+											}
+										} else {
+											echo '
+												<tr>
+													<td colspan="8" style="text-align: center; color: red; font-size: 18pt;">មិនមានទិន្នន័យទេ</td>
+												</tr>
+											';
 										}
 										?>
 									</tbody>
@@ -120,19 +244,14 @@
 
 						</div><!--//app-card-body-->
 					</div><!--//app-card-->
-					<nav class="app-pagination">
-						<ul class="pagination justify-content-center">
-							<li class="page-item disabled">
-								<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-							</li>
-							<li class="page-item active"><a class="page-link" href="#">1</a></li>
-							<li class="page-item"><a class="page-link" href="#">2</a></li>
-							<li class="page-item"><a class="page-link" href="#">3</a></li>
-							<li class="page-item">
-								<a class="page-link" href="#">Next</a>
-							</li>
-						</ul>
-					</nav><!--//app-pagination-->
+
+
+					<!-- Start pagination -->
+					<?php
+
+					require_once 'pages/pagin/pagin.php';
+					?>
+					<!-- End pagination-->
 
 				</div><!--//tab-pane-->
 
